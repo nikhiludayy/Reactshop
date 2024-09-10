@@ -37,7 +37,7 @@ const Nav = () => {
                 style={{ backgroundColor: color() }}
                 className={`hover:scale-125 transition-all w-[12px] h-[12px] rounded-full inline-block`}
               ></span>
-              {c}
+              {c.toUpperCase()}
             </Link>
           </div>
         );
