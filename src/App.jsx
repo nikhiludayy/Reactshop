@@ -8,7 +8,7 @@ import Edit from "./Components/Edit";
 
 const App = () => {
   return (
-    <div className="h-screen w-screen flex">
+    <div className="h-screen max-w-screen  mx-auto">
       <Routes>
         <Route path="/" element={<Home />}></Route>
         <Route path="/create" element={<Create />}></Route>

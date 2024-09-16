@@ -1,100 +1,111 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ProductContext } from "../utilis/context";
+
 const Edit = () => {
-  const [products, setProducts] = useContext(ProductContext);
+  const [products, setproducts] = useContext(ProductContext);
+  const navigate = useNavigate();
   const { id } = useParams();
-  const [product, setProduct] = useState({
+  const [product, setproduct] = useState({
     title: "",
-    price: "",
     description: "",
-    category: "",
     image: "",
+    price: "",
+    category: "",
   });
 
-  const { register, handleSubmit, reset } = useForm({
-    defaultValues: product,
-  });
-  const handleData = (data) => {
-    if (
-      data.title.trim().length < 1 ||
-      data.price.trim().length < 1 ||
-      data.description.trim().length < 5 ||
-      data.category.trim().length < 1 ||
-      data.image.trim().length < 1
-    )
-      return alert("Fill all");
-    const updatedProduct = { ...product, ...data };
-    const updatedProducts = products.map((p) =>
-      p.id === id ? updatedProduct : p
-    );
+  const ChangeHandler = (e) => {
+    // console.log(e.target.name, e.target.value);
+    setproduct({ ...product, [e.target.name]: e.target.value });
+  };
 
-    setProducts(updatedProducts);
-    localStorage.setItem("products", JSON.stringify(updatedProducts));
-    reset();
-    return alert("Data has been UPDATED");
-  };
-  const changehandle = (e) => {
-    console.log(e.target.name, e.target.value);
-    setProduct({...product, [e.target.name]: e.target.value });
-  };
   useEffect(() => {
-    setProduct(products && products.filter((p) => p.id == id)[0]);
-    reset(product);
-  }, [id, reset]);
-  console.log(product);
+    setproduct(products.filter((p) => p.id == id)[0]);
+  }, [id]);
+
+  const AddProductHandler = (e) => {
+    e.preventDefault();
+
+    if (
+      product.title.trim().length < 5 ||
+      product.image.trim().length < 5 ||
+      product.category.trim().length < 5 ||
+      product.price.trim().length < 1 ||
+      product.description.trim().length < 5 // Remove the extra comma here
+    ) {
+      alert("Each and every input must have at least 4 characters");
+      return;
+    }
+    const pi = products.findIndex((p) => p.id == id);
+    const copyData = [...products];
+    copyData[pi] = { ...products[pi], ...product };
+
+    setproducts(copyData); // Append the new product to the existing list
+    localStorage.setItem("products", JSON.stringify(copyData)); // Update local storage with new product
+    navigate(-1);
+  };
+
   return (
     <>
-      <div className="bg-red-200 p-10 w-screen h-screen overflow-hidden ">
-        <Link
-          to="/"
-          className="py-2 px-4 border rounded-md bg-blue-400 text-white font-semibold"
+      <div className="w-screen-xl mx-auto px-5 py-6"> 
+        <button
+          onClick={() => navigate(-1)}
+          className="ml-10 px-3 py-2 bg-blue-400 rounded-md font-semibold"
         >
-          HOME
-        </Link>
+          GoBack
+        </button>
         <form
-          onSubmit={handleSubmit(handleData)}
-          className="items-center justify-center flex flex-col"
+          onSubmit={AddProductHandler}
+          className="p-[5%] w-screen h-screen flex flex-col items-center "
         >
-          <h1 className="w-1/2 text-3xl font-semibold">Edit Product</h1>
+          <h1 className="text-3xl w-1/2 mb-5">Edit Product</h1>
+
           <input
-            {...register("title")}
-            type="text"
-            name="title"
-            onChange={changehandle}
-            placeholder="title"
-            className="text-xl bg-zinc-100 mt-4 rounded p-3 w-1/2 outline-none"
-          />
-          <input
-            {...register("price", { value: product.price })}
-            onChange={changehandle}
-            placeholder="price"
-            className="text-xl bg-zinc-100 mt-2 rounded p-3 w-1/2 outline-none"
-          />
-          <textarea
-            {...register("description")}
-            type="text"
-            placeholder="description"
-            className="text-xl bg-zinc-100 mt-2 rounded p-3 w-1/2 outline-none"
-          />
-          <input
-            {...register("category")}
-            type="text"
-            placeholder="category"
-            className="text-xl bg-zinc-100 mt-2 rounded p-3 w-1/2 outline-none"
-          />
-          <input
-            {...register("image")}
             type="url"
-            placeholder="image"
-            className="text-xl bg-zinc-100 mt-2 rounded p-3 w-1/2 outline-none"
+            placeholder="image link"
+            className="text-2xl bg-zinc-300 rounded p-3 w-1/2 mb-3"
+            name="image"
+            onChange={ChangeHandler}
+            value={product && product.image}
           />
           <input
-            onClick={() => {}}
-            type="submit"
-            className="w-1/2 mt-2 px-4 py-3 bg-blue-200 font-semibold rounded-md"
+            type="text"
+            placeholder="title"
+            className="text-2xl bg-zinc-300 rounded p-3 w-1/2 mb-3"
+            name="title"
+            onChange={ChangeHandler}
+            value={product && product.title}
           />
+          <div className="w-1/2 flex justify-between">
+            <input
+              type="text"
+              placeholder="category"
+              className="text-2xl bg-zinc-300 rounded p-3 w-[48%] mb-3"
+              name="category"
+              onChange={ChangeHandler}
+              value={product && product.category}
+            />
+            <input
+              type="number"
+              placeholder="price"
+              className="text-2xl bg-zinc-300 rounded p-3 w-[48%] mb-3"
+              name="price"
+              onChange={ChangeHandler}
+              value={product && product.price}
+            />
+          </div>
+          <textarea
+            className="text-2xl bg-zinc-300 rounded p-3 w-1/2 mb-3"
+            name="description"
+            onChange={ChangeHandler}
+            value={product && product.description}
+            rows="5"
+          ></textarea>
+
+          {/* Other input fields */}
+          <button className="py-2 px-5 border rounded border-blue-200 text-blue-300">
+            Edit Product
+          </button>
         </form>
       </div>
     </>
